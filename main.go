@@ -47,7 +47,7 @@ func main() {
 		nums = readNums(*numFile)
 	}
 
-	crawlArray(*title, nums)
+	crawl(*title, nums)
 }
 
 func readNums(file string) []int {
@@ -153,7 +153,7 @@ func makeRange(start, end int) []int {
 	return r
 }
 
-func crawlArray(title string, nums []int) {
+func crawl(title string, nums []int) {
 	for _, i := range nums {
 		link, err := crawlEp(title, i)
 
