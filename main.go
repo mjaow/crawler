@@ -4,8 +4,10 @@ import (
 	"encoding/base64"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
@@ -17,26 +19,65 @@ const (
 )
 
 var (
-	start = flag.Int("s", 0, "start (must be <=end)")
-	end   = flag.Int("e", 0, "end (must be >=start)")
-	title = flag.String("t", DraganBallZ, "title")
+	start   = flag.Int("s", 0, "start (must be <=end)")
+	end     = flag.Int("e", 0, "end (must be >=start)")
+	title   = flag.String("t", DraganBallZ, "title (not nil)")
+	numFile = flag.String("f", "", "num list file. if it exists, choose num files instead of start,end")
 )
 
 func main() {
 	flag.Parse()
 
-	if start == nil || end == nil || *start == 0 || *end == 0 || title == nil || *title == "" {
-		fmt.Println("start/end/title is nil")
+	if *title == "" {
 		flag.Usage()
 		os.Exit(1)
 	}
 
-	if *start > *end {
+	if *numFile == "" && *start == 0 && *end == 0 {
+		fmt.Printf("both num file and start/end is nil\n")
 		flag.Usage()
 		os.Exit(1)
 	}
 
-	crawlRange(*title, *start, *end)
+	var nums []int
+
+	if *numFile == "" {
+		nums = makeRange(*start, *end)
+	} else {
+		nums = readNums(*numFile)
+	}
+
+	crawlArray(*title, nums)
+}
+
+func readNums(file string) []int {
+	b, err := ioutil.ReadFile(file)
+
+	if err != nil {
+		fmt.Printf("read file num file %s failed %v\n", file, err)
+		os.Exit(1)
+	}
+
+	numstr := strings.Split(string(b), "\n")
+
+	if len(numstr) == 0 {
+		return nil
+	}
+
+	var r []int
+
+	for _, s := range numstr {
+		n, err := strconv.Atoi(s)
+
+		if err != nil {
+			fmt.Printf("find no num %s in file %s\n", s, file)
+			os.Exit(1)
+		}
+
+		r = append(r, n)
+	}
+
+	return r
 }
 
 func int2Base64(d int) string {
@@ -99,8 +140,21 @@ func crawlEp(title string, episode int) (string, error) {
 	return link, nil
 }
 
-func crawlRange(title string, start, end int) {
+func makeRange(start, end int) []int {
+	if start > end {
+		return nil
+	}
+
+	var r []int
 	for i := start; i <= end; i++ {
+		r = append(r, i)
+	}
+
+	return r
+}
+
+func crawlArray(title string, nums []int) {
+	for _, i := range nums {
 		link, err := crawlEp(title, i)
 
 		if err != nil {
