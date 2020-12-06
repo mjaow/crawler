@@ -14,14 +14,23 @@ import (
 )
 
 const (
-	DraganBallZ              = "dragonBallZ"
-	DraganBallZTitleEncoding = "Dragon+Ball+Z+%28Dub%29"
+	DragonBallZ              = "dragonBallZ"
+	DragonBallZTitleEncoding = "Dragon+Ball+Z+%28Dub%29"
+	DragonBallZCoverEncoding = "Y292ZXIvZHJhZ29uLWJhbGwtei1kdWIuanBn"
+
+	BlackLagoon1              = "blackLagoon1"
+	BlackLagoon1TitleEncoding = "Black+Lagoon+%28Dub%29"
+	BlackLagoon1CoverEncoding = "Y292ZXIvYmxhY2stbGFnb29uLWR1Yi5wbmc="
+
+	BlackLagoon2              = "blackLagoon2"
+	BlackLagoon2TitleEncoding = "Black+Lagoon%3A+The+Second+Barrage+%28Dub%29"
+	BlackLagoon2CoverEncoding = "Y292ZXIvYmxhY2stbGFnb29uLXRoZS1zZWNvbmQtYmFycmFnZS1kdWIucG5n"
 )
 
 var (
 	start   = flag.Int("s", 0, "start (must be <=end)")
 	end     = flag.Int("e", 0, "end (must be >=start)")
-	title   = flag.String("t", DraganBallZ, "title (not nil)")
+	title   = flag.String("t", DragonBallZ, "title (dragonBallZ,blackLagoon1,blackLagoon2)")
 	numFile = flag.String("f", "", "num list file. if it exists, choose num files instead of start,end")
 )
 
@@ -84,22 +93,26 @@ func int2Base64(d int) string {
 	return base64.URLEncoding.EncodeToString([]byte(fmt.Sprintf("%d", d)))
 }
 
-func parseQuery(title string, episode int) (string, string, error) {
-	if title == DraganBallZ {
+func parseQuery(title string, episode int) (string, string, string, error) {
+	if title == DragonBallZ {
 		if episode >= 1 && episode <= 151 {
-			return int2Base64(episode + 76107), DraganBallZTitleEncoding, nil
+			return int2Base64(episode + 76107), DragonBallZTitleEncoding, DragonBallZCoverEncoding, nil
 		} else if episode >= 152 && episode <= 207 {
-			return int2Base64(episode + 76507), DraganBallZTitleEncoding, nil
+			return int2Base64(episode + 76507), DragonBallZTitleEncoding, DragonBallZCoverEncoding, nil
 		} else {
-			return int2Base64(episode + 76513), DraganBallZTitleEncoding, nil
+			return int2Base64(episode + 76513), DragonBallZTitleEncoding, DragonBallZCoverEncoding, nil
 		}
+	} else if title == BlackLagoon1 {
+		return int2Base64(episode + 76921), BlackLagoon1TitleEncoding, BlackLagoon1CoverEncoding, nil
+	} else if title == BlackLagoon2 {
+		return int2Base64(episode + 148295), BlackLagoon2TitleEncoding, BlackLagoon2CoverEncoding, nil
 	} else {
-		return "", "", fmt.Errorf("title %s not supported", title)
+		return "", "", "", fmt.Errorf("title %s not supported", title)
 	}
 }
 
 func crawlEp(title string, episode int) (string, error) {
-	ep, t, err := parseQuery(title, episode)
+	ep, t, c, err := parseQuery(title, episode)
 
 	if err != nil {
 		return "", fmt.Errorf("parseQuery err %v", err)
@@ -109,7 +122,7 @@ func crawlEp(title string, episode int) (string, error) {
 		"&title=" + t +
 		"&typesub=SUB&" +
 		"sub=W10=" +
-		"&cover=Y292ZXIvZHJhZ29uLWJhbGwtei1kdWIuanBn")
+		"&cover=" + c)
 
 	if err != nil {
 		return "", fmt.Errorf("http get err %v", err)
