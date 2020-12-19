@@ -4,7 +4,7 @@
 # build
 make build
 
-# demo
-./crawler.sh
+# demo to crawl link from ep1 -> ep10 of dragonBallZ
+./crawler.sh 1 10
 
 ```
