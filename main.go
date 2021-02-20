@@ -25,6 +25,10 @@ const (
 	BlackLagoon2              = "blackLagoon2"
 	BlackLagoon2TitleEncoding = "Black+Lagoon%3A+The+Second+Barrage+%28Dub%29"
 	BlackLagoon2CoverEncoding = "Y292ZXIvYmxhY2stbGFnb29uLXRoZS1zZWNvbmQtYmFycmFnZS1kdWIucG5n"
+
+	GTO              = "GTO"
+	GTOTitleEncoding = "Great+Teacher+Onizuka+%28Dub%29"
+	GTOCoverEncoding = "Y292ZXIvZ3JlYXQtdGVhY2hlci1vbml6dWthLWR1Yi5wbmc="
 )
 
 var (
@@ -106,6 +110,8 @@ func parseQuery(title string, episode int) (string, string, string, error) {
 		return int2Base64(episode + 76921), BlackLagoon1TitleEncoding, BlackLagoon1CoverEncoding, nil
 	} else if title == BlackLagoon2 {
 		return int2Base64(episode + 148295), BlackLagoon2TitleEncoding, BlackLagoon2CoverEncoding, nil
+	} else if title == GTO {
+		return int2Base64(episode + 82592), GTOTitleEncoding, GTOCoverEncoding, nil
 	} else {
 		return "", "", "", fmt.Errorf("title %s not supported", title)
 	}
